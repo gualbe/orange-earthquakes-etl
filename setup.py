@@ -73,7 +73,7 @@ CLASSIFIERS = [
 
 setup(
     name="EarthquakesETL",
-    version="1.0.2",
+    version="1.0.3",
     author="Elena Carrasco Hurtado",
     author_email="ecarrascohurtado@gmail.com",
     description="EarthquakesETL add-on for Orange 3 data mining software.",

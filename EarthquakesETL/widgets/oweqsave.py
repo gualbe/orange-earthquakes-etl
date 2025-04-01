@@ -669,12 +669,7 @@ class oweqsave(OWBaseSql, OWWidget):
                                                                      True if (df_config_decluster.loc[0, 'Declustering Method'] == 'Gardner-Knopoff') else False,
                                         str(df_config_decluster.loc[0, 'Param1']), str(df_config_decluster.loc[0, 'Param2']), 'null' if (df_config_decluster.loc[0, 'Param3'] is None
                                                                     or str(df_config_decluster.loc[0, 'Param3']) == 'None') else str(df_config_decluster.loc[0, 'Param3']), "'"+str(df_catalog_config.loc[0, 'Data Source']+"'"))
-            else:
-
-                print(df_catalog_config.head())
-
-                print(df_catalog_config.dtypes)
-
+            elif self.b1.isChecked():
                 self.idConfig_catalog = self.insert_config_catalog(str(df_catalog_config.loc[0, 'Start Date']), str(df_catalog_config.loc[0, 'End Date']),
                                         str(df_catalog_config.loc[0, 'Magnitude']), True if (df_catalog_config.loc[0, 'Place'] == 'Rectangle') else False,
                                         'null' if (df_catalog_config.loc[0, 'Max Longitude'] is None or str(df_catalog_config.loc[0, 'Max Longitude']) == 'None')
@@ -707,7 +702,7 @@ class oweqsave(OWBaseSql, OWWidget):
                 if selected_catalog_id is None:
                     self.Error.catalog()
             else:
-                if self.b1.isChecked() and self.declustered.isChecked():
+                if self.declustered.isChecked():
                     df_config_decluster = pc.table_to_frame(self.config_decluster, include_metas=True)
                     self.idConfig_catalog = self.insert_config_catalog(str(df_catalog_config.loc[0, 'Start Date']), str(df_catalog_config.loc[0, 'End Date']),
                                                                        str(df_catalog_config.loc[0, 'Magnitude']), True if (df_catalog_config.loc[0, 'Place'] == 'Rectangle') else False,

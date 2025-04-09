@@ -73,7 +73,7 @@ CLASSIFIERS = [
 
 setup(
     name="EarthquakesETL",
-    version="1.0.3",
+    version="1.0.4",
     author="Elena Carrasco Hurtado",
     author_email="ecarrascohurtado@gmail.com",
     description="EarthquakesETL add-on for Orange 3 data mining software.",
@@ -100,9 +100,7 @@ setup(
     data_files=DATA_FILES,
     classifiers=CLASSIFIERS,
     install_requires=[
-        'Orange3>=3.38.1',
-        'psycopg2>=2.9.10',
-        'pandas>=2.2.3',
+        'psycopg2-binary',
         'SQLAlchemy>=2.0.40',
         'bcrypt>=4.3.0',
         'geopandas>=1.0.1',
@@ -112,7 +110,5 @@ setup(
         'fiona>=1.10.1',
         'dataclasses>=0.6',
         'numpy>=1.26.4',
-        'Sphinx',
-        'PyQtWebEngine>=5.15.7'
     ],
 )

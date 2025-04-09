@@ -1,6 +1,4 @@
-# IMPORTAMOS LIBRERIAS
 import math
-import re
 import Orange
 from Orange.widgets.widget import OWWidget
 from Orange.widgets.utils.concurrent import ConcurrentWidgetMixin  # widget --> tareas en paralelo
@@ -24,7 +22,6 @@ import time
 from Orange.widgets.utils.widgetpreview import WidgetPreview
 
 
-# CLASE PRINCIPAL
 class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
     name = "EQ Catalog Download"
     description = "Remotely acquire earthquake data using Open Data APIs"
@@ -32,9 +29,9 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
     keywords = "earthquakes, acquire, api, data, catalog, download, sismology, etl"
     priority = 2240
 
-    want_main_area = False  # solo usa el area de control, no area principal
+    want_main_area = False
 
-    resizing_enabled = False  # deshabilita configuraciones del widget
+    resizing_enabled = False
 
     settings_version = 3
 
@@ -47,8 +44,8 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
 
     def __init__(self, *args, **kwargs):
 
-        super().__init__(*args, **kwargs)  # inicializa el widget
-        ConcurrentWidgetMixin.__init__(self)  # inicializa el comportamiento concurrente
+        super().__init__(*args, **kwargs)
+        ConcurrentWidgetMixin.__init__(self)
         self.controlArea.setMinimumWidth(360)
 
         self.data = None
@@ -101,14 +98,13 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
 
         # Conectar el cambio de selección en "Lugar" para actualizar los campos dinámicamente
         self.place_combobox.currentIndexChanged.connect(self.update_place_fields)
-        self.update_place_fields()  # Llamar una vez al inicio para inicializar el layout dinámico
+        self.update_place_fields()
 
-        # crea un layout horizontal y lo agrega a la caja anterior
         toplayout = QHBoxLayout()
         toplayout.setContentsMargins(0, 0, 0, 0)
         box_data_source.layout().addLayout(toplayout)
 
-        # Añadir un espacio al final para el botón Generate
+        # Botón Generate
         button_box = gui.widgetBox(self.controlArea, addSpace=True, margin=10)
         self.btn_generate = QPushButton("Generate", toolTip="Cargar datos.")
         self.btn_generate.setMinimumWidth(10)
@@ -121,7 +117,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         self.btn_reset.clicked.connect(self.reset_node)
         button_box.layout().addWidget(self.btn_reset)
 
-    # ELECCIÓN LUGAR DE ORIGEN
     def update_place_fields(self):
         # Limpiar el layout dinámico para evitar superposición de widgets
         for i in reversed(range(self.dynamic_layout.count())):
@@ -129,9 +124,7 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
             self.dynamic_layout.removeWidget(widget_to_remove)
             widget_to_remove.deleteLater()
 
-        # Dependiendo del lugar seleccionado, crear diferentes campos
         if self.place_combobox.currentText() == "By coordinates of a rectangle":
-            # Campos para rectángulo
             self.min_latitude = QLineEdit(self)
             self.max_latitude = QLineEdit(self)
             self.min_longitude = QLineEdit(self)
@@ -173,9 +166,7 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
             self.maxradiuskm.textChanged.connect(self.field_check_circulo)
             self.maxradiuskm.textChanged.connect(self.configurations_table)
 
-    # GENERAR TABLA
     def generate(self):
-
         if str(self.place_combobox.currentText()) == "By coordinates of a rectangle":
             min_lat = float(self.min_latitude.text().replace(',', '.'))
             max_lat = float(self.max_latitude.text().replace(',', '.'))
@@ -186,11 +177,9 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
                 if not self.validar_rectangulo_en_chile(min_lat, max_lat, min_lon, max_lon):
                     self.Error.generation_error.clear()
                     self.Error.generation_error("The coordinates do not belong to Chile")
-                    #self.btn_generate.setEnabled(False)
                     return
 
             else:
-                print("HOLA")
                 if not (-90 <= min_lat <= 90 and -90 <= max_lat <= 90):
                     self.Error.generation_error("Latitude must be between -90 and 90.")
                     return
@@ -249,34 +238,35 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
 
         self.configurations_table()
 
-        self.Outputs.data.send(out_data)  # envia los datos generados
+        self.Outputs.data.send(out_data)
 
-    # LUGAR = RECTANGULO
     def get_earthquake_rectangle_data(self):
         fecha_inicio = str(self.start_date.text().replace("/", "-"))
         fecha_fin = str(self.end_date.text().replace("/", "-"))
-        url = f"https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={fecha_inicio}&endtime={fecha_fin}&minmagnitude={str(self.min_magnitude.text())}&minlatitude={str(self.min_latitude.text())}&maxlatitude={str(self.max_latitude.text())}&minlongitude={str(self.min_longitude.text())}&maxlongitude={str(self.max_longitude.text())}"
+        url = f"https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={fecha_inicio}&endtime={fecha_fin}" \
+              f"&minmagnitude={str(self.min_magnitude.text())}&minlatitude={str(self.min_latitude.text())}" \
+              f"&maxlatitude={str(self.max_latitude.text())}&minlongitude={str(self.min_longitude.text())}" \
+              f"&maxlongitude={str(self.max_longitude.text())}"
         url_formato = url.replace(",", ".")
         response = requests.get(url_formato)
 
         if response.status_code == 200:
-            # Si la respuesta es exitosa, devolver los datos en formato JSON
             response = response.json()
             return response
         else:
             return f"Error en la solicitud: {response.status_code}"
 
-    # LUGAR = CIRCULO
     def get_earthquake_circle_data(self):
         fecha_inicio = str(self.start_date.text().replace("/", "-"))
         fecha_fin = str(self.end_date.text().replace("/", "-"))
-        url = f"https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={fecha_inicio}&endtime={fecha_fin}&minmagnitude={str(self.min_magnitude.text())}&latitude={str(self.latitude.text())}&longitude={str(self.longitude.text())}&maxradiuskm={str(self.maxradiuskm.text())}"
+        url = f"https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={fecha_inicio}&endtime={fecha_fin}" \
+              f"&minmagnitude={str(self.min_magnitude.text())}&latitude={str(self.latitude.text())}&longitude={str(self.longitude.text())}" \
+              f"&maxradiuskm={str(self.maxradiuskm.text())}"
 
         url_formato = url.replace(",", ".")
         response = requests.get(url_formato)
 
         if response.status_code == 200:
-            # Si la respuesta es exitosa, devolver los datos en formato JSON
             response = response.json()
             return response
         else:
@@ -286,7 +276,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
     def obtener_datos_usgs(self, response):
         self.progressBarInit()
         exportDf = gpd.GeoDataFrame()
-        gdf = gpd.GeoDataFrame()
         for i, data in enumerate(response['features']):
             coord = data['geometry']['coordinates']
             geometry = gpd.points_from_xy([coord[0]], [coord[1]])
@@ -294,20 +283,15 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
             gdf = gdf[['mag', 'place', 'time', 'alert', 'status', 'tsunami', 'geometry']]
             gdf['time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(gdf['time'][i] / 1000))
 
-            # Separar geometry en latitud y longitud
             gdf['latitude'] = gdf['geometry'].apply(lambda point: point.x)
             gdf['longitude'] = gdf['geometry'].apply(lambda point: point.y)
 
-            # Eliminar la columna geometry
             df = pd.DataFrame(gdf.drop('geometry', axis=1))
 
-            # Reorganizar columnas
             df = df[['mag', 'place', 'latitude', 'longitude', 'time', 'alert', 'status', 'tsunami']]
 
-            # Uso pd.concat() en lugar de append
             exportDf = pd.concat([exportDf, df])
 
-            # Barra de progreso
             self.progressBarSet((i + 1) * 100 / len(response['features']))
 
         self.progressBarFinished()
@@ -316,7 +300,8 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
     # SISMOLOGÍA CHILE
     # Función para generar URL de cada día
     def generar_url(self, fecha):
-        return f"https://www.sismologia.cl/sismicidad/catalogo/{fecha.year()}/{fecha.month():02}/{fecha.year()}{fecha.month():02}{fecha.day():02}.html"
+        return f"https://www.sismologia.cl/sismicidad/catalogo/{fecha.year()}/{fecha.month():02}/{fecha.year()}" \
+               f"{fecha.month():02}{fecha.day():02}.html"
 
 
     # Función para obtener datos de sismos de una fecha específica
@@ -338,7 +323,7 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
             columnas = fila.find_all('td')
             if len(columnas) < 5:
                 continue
-            # Extraer datos de latitud, magnitud y profundidad
+
             latitud_longitud = columnas[2].text.strip().split(" ")
             distance_part = columnas[0].text[19:]
             time = columnas[1].text
@@ -352,7 +337,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
             else:
                 bool = self.punto_en_circulo(latitud, longitud, self.latitude, self.longitude, self.maxradiuskm)
 
-            # Filtrar según la magnitud mínima
             if magnitud >= self.min_magnitude.value():
                 if bool:
                     datos_sismos.append({
@@ -368,11 +352,9 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
 
         return datos_sismos
 
-        # Función principal para obtener datos entre dos fechas
-
     def obtener_datos_sismos_rango(self, fecha_inicio, fecha_fin):
         self.progressBarInit()
-        fecha_actual = fecha_inicio.date()  # Convierte a QDate
+        fecha_actual = fecha_inicio.date()
         fecha_fin = fecha_fin.date()
         todos_sismos = []
 
@@ -393,10 +375,8 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
 
         return exportDf
 
-    # TABLA CONFIGURACION DE SALIDA
     def configurations_table(self):
         df = pd.DataFrame()
-
         df['Magnitude'] = [self.min_magnitude.text().replace(',', '.')]
         df['Start Date'] = [str(self.start_date.text())]
         df['End Date'] = [str(self.end_date.text())]
@@ -405,12 +385,10 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         if self.place_combobox.currentText() == "By coordinates of a rectangle":
             df['Place'] = ["Rectangle"]
             df['Min Latitude'] = [self.min_latitude.text().replace(',', '.')]
-            #df['Min Latitude'] = [str(self.min_latitude.text())]
             df['Max Latitude'] = [str(self.max_latitude.text().replace(',', '.'))]
             df['Min Longitude'] = [str(self.min_longitude.text().replace(',', '.'))]
             df['Max Longitude'] = [str(self.max_longitude.text().replace(',', '.'))]
             df['Max Radius Km'] = None
-
         else:
             df['Place'] = ["Circle"]
             df['Min Latitude'] = [str(self.latitude.text().replace(',', '.'))]
@@ -418,13 +396,8 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
             df['Max Longitude'] = None
             df['Max Latitude'] = None
             df['Max Radius Km'] = [str(self.maxradiuskm.text().replace(',', '.'))]
-        # Transponer el DataFrame
-        """df = df.T
-        df.columns = ['Value']
 
-        df['Value'] = df['Value'].astype('category')"""
         out_configurations = pc.table_from_frame(df)
-
         self.Outputs.configuration_table.send(out_configurations)
 
     def punto_en_rectangulo(self, lat_punto, lon_punto, lat_min, lat_max, lon_min, lon_max):
@@ -493,7 +466,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         self.btn_generate.setEnabled(all_filled)
 
     def validar_rectangulo_en_chile(self, latitud_min, latitud_max, longitud_min, longitud_max):
-        # Definir las coordenadas máximas y mínimas de Chile
         latitud_max_chile = -18  # Latitud máxima de Chile (norte)
         latitud_min_chile = -56  # Latitud mínima de Chile (sur)
         longitud_max_chile = -64  # Longitud máxima de Chile (este)
@@ -508,7 +480,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         return True
 
     def validar_circulo_en_chile(self, latitud, longitud, radio_max_km):
-        # Coordenadas máximas y mínimas de Chile
         latitud_max_chile = -18  # Norte
         latitud_min_chile = -56  # Sur
         longitud_max_chile = -64  # Este
@@ -517,7 +488,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         # Radio de la Tierra en km (para usar en Haversine)
         radio_tierra_km = 6371.0
 
-        # Función para calcular la distancia usando Haversine
         def distancia_haversine(lat1, lon1, lat2, lon2):
             lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
             dlat = lat2 - lat1
@@ -526,7 +496,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
             c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
             return radio_tierra_km * c
 
-        # Extraer y convertir los valores del centro y radio
         lat_c = float(latitud.text().replace(',', '.'))
         lon_c = float(longitud.text().replace(',', '.'))
         rad = float(radio_max_km.text().replace(',', '.'))

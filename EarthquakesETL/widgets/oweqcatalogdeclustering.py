@@ -1,4 +1,3 @@
-# Importar librerías
 import Orange
 import Orange.data.pandas_compat as pc
 import pandas as pd
@@ -105,7 +104,6 @@ class oweqcatalogdeclustering(OWWidget):
         # Layout principal del panel lateral
         self.controlArea.layout().setAlignment(Qt.AlignTop)
 
-        # Sección de configuración
         box_decluster = gui.widgetBox(self.controlArea, "Declustering Settings")
         self.decluster_combobox = QComboBox(self)
         self.decluster_combobox.addItems(["Gardner-Knopoff", "Nearest Neighbor"])
@@ -229,21 +227,19 @@ class oweqcatalogdeclustering(OWWidget):
         self.Outputs.cleaned_data.send(None)
 
     def decluster_and_clean(self):
-        """Limpia y declusteriza los datos."""
         if not self.data:
             self.Error.no_data()
             return
 
         try:
             df = pc.table_to_frame(self.data).drop_duplicates()
-
             if self.decluster_combobox.currentText() == "Gardner-Knopoff":
                 df = self.decluster_gardner_knopoff(df)
             else:
                 df = self.decluster_nearest_neighbor(df)
 
-            columns_to_keep = ['mag', 'magnitude', 'place', 'latitude', 'longitude', 'time', 'alert', 'status', 'tsunami']  # Extrae nombres como strings
-            df = df[[col for col in columns_to_keep if col in df.columns]]  # Mantiene solo las columnas existentes
+            columns_to_keep = ['mag', 'magnitude', 'place', 'latitude', 'longitude', 'time', 'alert', 'status', 'tsunami']
+            df = df[[col for col in columns_to_keep if col in df.columns]]
 
             if "magnitude" in df.columns:
                 df.rename(columns={"magnitude": "mag"}, inplace=True)
@@ -251,7 +247,6 @@ class oweqcatalogdeclustering(OWWidget):
             cleaned_table = pc.table_from_frame(df)
 
             self.configurations_table()
-
             self.Outputs.cleaned_data.send(cleaned_table)
 
             self.output = OutputData(
@@ -265,15 +260,12 @@ class oweqcatalogdeclustering(OWWidget):
             self.Error.declustering_failed()
             print(e)
 
-    # TABLA CONFIGURACION DE SALIDA
     def configurations_table(self):
         df = pd.DataFrame()
 
         df['Declustering Method'] = [self.decluster_combobox.currentText()]
 
         if self.decluster_combobox.currentText() == "Gardner-Knopoff":
-            #df['Time Window (days)'] = [self.time_window_edit.text()]
-            #df['Time Proportion'] = [self.fs_time_prop_edit.text()]
             df['Param1'] = [self.time_window_edit.text()]
             df['Param2'] = [self.fs_time_prop_edit.text()]
             df['Param3'] = None
@@ -282,10 +274,6 @@ class oweqcatalogdeclustering(OWWidget):
             df['Param2'] = [self.q_value_edit.text()]
             df['Param3'] = [self.fractal_dimension_edit.text()]
 
-        """df = df.T
-        df.columns = ['Value']
-
-        df['Value'] = df['Value'].astype('category')"""
         out_configurations = pc.table_from_frame(df)
 
         self.Outputs.configuration_table.send(out_configurations)
@@ -314,7 +302,8 @@ class oweqcatalogdeclustering(OWWidget):
 
             potential_parents['Rij'] = np.sqrt((child['latitude'] - potential_parents['latitude']) ** 2 +
                                                (child['longitude'] - potential_parents['longitude']) ** 2)
-            potential_parents['Rij'] = (potential_parents['Rij'] ** float(self.fractal_dimension)) * 10 ** ((float(self.q_value) - 1) * float(self.b_value) * potential_parents['mag'])
+            potential_parents['Rij'] = (potential_parents['Rij'] ** float(self.fractal_dimension)) * 10 ** \
+                                       ((float(self.q_value) - 1) * float(self.b_value) * potential_parents['mag'])
 
             potential_parents['Nij'] = potential_parents['Tij'] * potential_parents['Rij']
 
@@ -331,8 +320,6 @@ class oweqcatalogdeclustering(OWWidget):
         catalog = catalog[catalog.index.isin(valid_indices)].reset_index(drop=True)
 
         return catalog
-
-        #return children
 
     def decluster_gardner_knopoff(self, df):
         pd.set_option('display.max_columns', None)
@@ -368,7 +355,6 @@ class oweqcatalogdeclustering(OWWidget):
         catalogue.data['minute'] = catalogue.data['time'].dt.minute
         catalogue.data['second'] = catalogue.data['time'].dt.second
 
-        # Ordenar el catálogo cronológicamente
         catalogue.sort_catalogue_chronologically()
 
         # Método de declusterización Gardner-Knopoff
@@ -389,10 +375,9 @@ class oweqcatalogdeclustering(OWWidget):
         # Filtrar solo mainshocks
         declustered_catalogue = catalogue.data[catalogue.data['cluster_flag'] == 0]
 
-
-        # Convertir la estructura del catálogo a un DataFrame
         declustered_df = pd.DataFrame(declustered_catalogue,
-                                      columns=['time', 'latitude', 'longitude', 'magnitude', 'place', 'alert', 'status', 'tsunami', 'cluster_index', 'cluster_flag'])
+                                      columns=['time', 'latitude', 'longitude', 'magnitude', 'place', 'alert',
+                                               'status', 'tsunami', 'cluster_index', 'cluster_flag'])
 
         return declustered_df
 

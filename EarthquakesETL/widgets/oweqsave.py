@@ -457,20 +457,16 @@ class oweqsave(OWBaseSql, OWWidget):
     def create_table_catalog(self, table_name):
         self.progressBarInit()
         try:
-            # Convertir la tabla Orange a un DataFrame de pandas
             df = pc.table_to_frame(self.catalog)
 
             if 'index' in df.columns:
                 df = df.drop('index', axis=1)
-
-            print(df.columns)
 
         except Exception as ex:
             self.Error.connection("Error al convertir la tabla a DataFrame: " + str(ex))
             self.progressBarFinished()
             return
 
-        # Reordenar columnas para colocar la variable clase al inicio (si existe)
         if self.catalog.domain.class_var is not None:
             class_col = self.catalog.domain.class_var.name
             if class_col in df.columns:
@@ -498,19 +494,14 @@ class oweqsave(OWBaseSql, OWWidget):
             self.progressBarFinished()
             return
 
-        # Importar pandas (si no se ha importado ya)
         import pandas as pd
 
-        # Convertir las columnas de tipo TimeVariable a datetime
-        # Recorremos tanto atributos como metas
         for var in self.data.domain.attributes + self.data.domain.metas:
             if isinstance(var, Orange.data.TimeVariable):
                 colname = var.name
                 if colname in df.columns:
-                    # Se asume que los valores son timestamps (en segundos)
                     df[colname] = pd.to_datetime(df[colname], unit='s', errors='coerce')
 
-        # Reordenar columnas para colocar la variable clase al inicio, si existe
         if self.data.domain.class_var is not None:
             class_col = self.data.domain.class_var.name
             if class_col in df.columns:
@@ -522,7 +513,6 @@ class oweqsave(OWBaseSql, OWWidget):
                 engine = self.backend.engine
             else:
                 engine = self.get_sqlalchemy_engine()
-            # Usar pandas to_sql para crear la tabla e insertar los datos en bloque
             df.to_sql(name=table_name, con=engine, if_exists='replace', index=False)
         except Exception as ex:
             self.Error.connection("Error al insertar datos con pandas to_sql: " + str(ex))
@@ -541,22 +531,18 @@ class oweqsave(OWBaseSql, OWWidget):
         else:
             self.insert_data()
 
-    def insert_config_catalog(self, start_date, end_date, min_mag, geo_type,
-                              max_lon, max_lat, min_lon, min_lat, radius,
+    def insert_config_catalog(self, start_date, end_date, min_mag, geo_type, max_lon, max_lat, min_lon, min_lat, radius,
                               declustered, declustered_method, param1, param2, param3, data_source):
         new_start_date = datetime.strptime(start_date, '%Y-%m-%d %H:%M:%S')
         new_end_date = datetime.strptime(end_date, '%Y-%m-%d %H:%M:%S')
         query = f"""
             INSERT INTO public.catalogs_config
-            (start_date, end_date, min_mag, geo_type, max_lon, max_lat, 
-             min_lon, min_lat, radius, declustered, declustered_method, 
+            (start_date, end_date, min_mag, geo_type, max_lon, max_lat, min_lon, min_lat, radius, declustered, declustered_method, 
              param1, param2, param3, data_source)
             VALUES ('{new_start_date}', '{new_end_date}', {min_mag}, {geo_type}, {max_lon.replace('nan', 'null')}, {max_lat.replace('nan', 'null')},
                     {min_lon}, {min_lat}, {radius.replace('nan', 'null')}, {declustered}, {declustered_method},
                     {param1}, {param2}, {param3.replace('nan', 'null')}, {data_source}) RETURNING id;
         """
-
-        print(query)
 
         try:
             with self.backend.execute_sql_query(query) as cursor:
@@ -632,6 +618,7 @@ class oweqsave(OWBaseSql, OWWidget):
                     else False, str(df_config_decluster.loc[0, 'Param1']), str(df_config_decluster.loc[0, 'Param2']),
                     'null' if (df_config_decluster.loc[0, 'Param3'] is None or str(df_config_decluster.loc[0, 'Param3']) == 'None')
                     else str(df_config_decluster.loc[0, 'Param3']), "'"+str(df_catalog_config.loc[0, 'Data Source']+"'"))
+
             elif self.b1.isChecked():
                 self.idConfig_catalog = self.insert_config_catalog(str(df_catalog_config.loc[0, 'Start Date']), str(df_catalog_config.loc[0, 'End Date']),
                     str(df_catalog_config.loc[0, 'Magnitude']), True if (df_catalog_config.loc[0, 'Place'] == 'Rectangle') else False,
@@ -649,8 +636,6 @@ class oweqsave(OWBaseSql, OWWidget):
         if self.b2.isChecked():
             if self.catalog is None:
                 df_config_dataset = pc.table_to_frame(self.config_dataset, include_metas=True)
-                #last_catalog = self.last_user_catalog()
-                #self.idCatalog = last_catalog
                 selected_catalog_id = self.catalogCombo.currentText()
                 print(selected_catalog_id)
                 self.idCatalog = selected_catalog_id
@@ -678,42 +663,28 @@ class oweqsave(OWBaseSql, OWWidget):
                                 'null' if (df_config_decluster.loc[0, 'Param3'] is None or str(df_config_decluster.loc[0, 'Param3']) == 'None')
                                 else str(df_config_decluster.loc[0, 'Param3']),"'" + str(df_catalog_config.loc[0, 'Data Source'] + "'"))
                 else:
-                    self.idConfig_catalog = self.insert_config_catalog(str(df_catalog_config.loc[0, 'Start Date']),
-                                                                       str(df_catalog_config.loc[0, 'End Date']),
-                                                                       str(df_catalog_config.loc[0, 'Magnitude']),
-                                                                       True if (df_catalog_config.loc[
-                                                                                    0, 'Place'] == 'Rectangle') else False,
-                                                                       'null' if (df_catalog_config.loc[
-                                                                                      0, 'Max Longitude'] is None or str(
-                                                                           df_catalog_config.loc[
-                                                                               0, 'Max Longitude']) == 'None')
-                                                                       else str(
-                                                                           df_catalog_config.loc[0, 'Max Longitude']),
-                                                                       'null' if (df_catalog_config.loc[
-                                                                                      0, 'Max Latitude'] is None or str(
-                                                                           df_catalog_config.loc[
-                                                                               0, 'Max Latitude']) == 'None')
-                                                                       else str(
-                                                                           df_catalog_config.loc[0, 'Max Latitude']),
-                                                                       str(df_catalog_config.loc[0, 'Min Longitude']),
-                                                                       str(df_catalog_config.loc[0, 'Min Latitude']),
-                                                                       'null' if (df_catalog_config.loc[
-                                                                                      0, 'Max Radius Km'] is None or str(
-                                                                           df_catalog_config.loc[
-                                                                               0, 'Max Radius Km']) == 'None')
-                                                                       else str(
-                                                                           df_catalog_config.loc[0, 'Max Radius Km']),
-                                                                       False, 'null', 'null', 'null', 'null', "'" + str(
-                            df_catalog_config.loc[0, 'Data Source'] + "'"))
+                    self.idConfig_catalog = self.insert_config_catalog(str(df_catalog_config.loc[0, 'Start Date']), str(df_catalog_config.loc[0, 'End Date']),
+                                str(df_catalog_config.loc[0, 'Magnitude']), True if (df_catalog_config.loc[0, 'Place'] == 'Rectangle') else False,
+                                'null' if (df_catalog_config.loc[0, 'Max Longitude'] is None or str(df_catalog_config.loc[0, 'Max Longitude']) == 'None')
+                                else str(df_catalog_config.loc[0, 'Max Longitude']), 'null' if (df_catalog_config.loc[0, 'Max Latitude'] is None or
+                                str(df_catalog_config.loc[0, 'Max Latitude']) == 'None') else str(df_catalog_config.loc[0, 'Max Latitude']),
+                                str(df_catalog_config.loc[0, 'Min Longitude']), str(df_catalog_config.loc[0, 'Min Latitude']), 'null' if
+                                (df_catalog_config.loc[0, 'Max Radius Km'] is None or str(df_catalog_config.loc[0, 'Max Radius Km']) == 'None')
+                                else str(df_catalog_config.loc[0, 'Max Radius Km']), False, 'null', 'null', 'null', 'null', "'" +
+                                str(df_catalog_config.loc[0, 'Data Source'] + "'"))
 
                 self.idCatalog = self.insert_catalog(self.idConfig_catalog)
 
                 df_config_dataset = pc.table_to_frame(self.config_dataset, include_metas=True)
                 self.idConfig_dataset = self.insert_config_dataset(str(df_config_dataset.loc[0, 'Start Date']), str(df_config_dataset.loc[0, 'End Date']),
-                                                                   str(df_config_dataset.loc[0, 'Events for b-value Morales']), str(df_config_dataset.loc[0, 'Events for b-value Adeli']),
-                                                                   str(df_config_dataset.loc[0, 'Reference Magnitude']), str(df_config_dataset.loc[0, 'Prediction Days']),
-                                                                   str(df_config_dataset.loc[0, 'Classification From']), str(df_config_dataset.loc[0, 'Classification Step']),
-                                                                   str(df_config_dataset.loc[0, 'Classification To']), str(df_config_dataset.loc[0, 'Threshold (mu and c)']),
+                                                                   str(df_config_dataset.loc[0, 'Events for b-value Morales']),
+                                                                   str(df_config_dataset.loc[0, 'Events for b-value Adeli']),
+                                                                   str(df_config_dataset.loc[0, 'Reference Magnitude']),
+                                                                   str(df_config_dataset.loc[0, 'Prediction Days']),
+                                                                   str(df_config_dataset.loc[0, 'Classification From']),
+                                                                   str(df_config_dataset.loc[0, 'Classification Step']),
+                                                                   str(df_config_dataset.loc[0, 'Classification To']),
+                                                                   str(df_config_dataset.loc[0, 'Threshold (mu and c)']),
                                                                    str(df_config_dataset.loc[0, 'Output Type']))
                 self.idDataset = self.insert_dataset(self.idConfig_dataset, self.idCatalog)
 
@@ -729,8 +700,6 @@ class oweqsave(OWBaseSql, OWWidget):
                 self.datasetname = f"dataset_{self.idDataset}"
                 self.create_table_catalog(str(self.catalogname))
                 self.create_table_dataset(str(self.datasetname))
-
-        #self.create_master_table()
 
     def user_catalogs(self):
         if self.backend is None:

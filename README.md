@@ -42,9 +42,7 @@ If using Anaconda Python distribution, simply run
     pip install EarthquakesETL
 
 **Required Dependencies**:
-* Orange3>=3.38.1
-* psycopg2>=2.9.10
-* pandas>=2.2.3
+* psycopg2-binary
 * SQLAlchemy>=2.0.40
 * bcrypt>=4.3.3
 * geopandas>=1.0.1
@@ -54,8 +52,6 @@ If using Anaconda Python distribution, simply run
 * fiona>=1.10.1
 * dataclasses>=0.6
 * numpy>=1.26.4
-* Sphinx>=8.1.3
-* PyQtWebEngine>=5.15.7
 
 Usage
 -----

@@ -383,16 +383,14 @@ class oweqcatalogdeclustering(OWWidget):
 
     def reset_node(self):
         """Reinicia el nodo y muestra una tabla vacía."""
-        self.clear()  # Limpia cualquier configuración previa
+        self.clear()
 
-        # Enviar tabla vacía como salidas
         self.Outputs.cleaned_data.send(None)
 
         self.output: Optional[OutputData] = None
 
-        self._setup_table_view()  # Configurar la vista con la tabla vacía
+        self._setup_table_view()
 
-        # Restablecer valores por defecto de los parámetros
         self.time_window = 1
         self.space_window = 0.0
 

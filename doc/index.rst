@@ -9,6 +9,10 @@ This add-on allows users to perform three main activities related to seismic dat
 
 **3. EQ Feature Engineering**: Calculate and generate seismic features from the cleaned data, creating datasets ready for supervised modeling using machine learning techniques.
 
+In addition, the addon has a specific node to connect to a database and store raw or declusterized catalogs and attribute and class datasets.
+
+**4. EQ Save**: This add-on is designed to streamline the entire workflow, from data acquisition to preparation for predictive analysis.
+
 This add-on is designed to streamline the entire workflow, from data acquisition to preparation for predictive analysis.
 
 .. toctree::

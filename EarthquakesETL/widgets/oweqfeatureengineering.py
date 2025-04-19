@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from msilib import Table
 from typing import Any, Container, Optional
 
 from Orange.data.pandas_compat import table_to_frame
@@ -15,11 +14,10 @@ from Orange.widgets.widget import OWWidget
 from Orange.widgets.utils.concurrent import ConcurrentWidgetMixin
 from Orange.widgets import gui
 from Orange.widgets.widget import Output, Msg
-from PyQt5.QtCore import Qt, QModelIndex, QSize, QDate
+from PyQt5.QtCore import QModelIndex, QSize, QDate
 from PyQt5.QtWidgets import QSpacerItem, QSizePolicy, QHeaderView, QStyle, QDateEdit
 
 from EarthquakesETL.eqmodel.EQPgen import EQPgen
-from orangewidget.utils.widgetpreview import WidgetPreview
 
 from EarthquakesETL.widgets.oweqcatalogdeclustering import SubsetRole
 
@@ -29,7 +27,7 @@ from PyQt5.QtCore import Qt
 
 @dataclass
 class OutputData:
-    table: Table
+    table: pd.DataFrame
     model: TableModel
 
 class _TableModel(RichTableModel):
@@ -126,7 +124,6 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
         self.attAdeli_bA = False
         self.outputType = ""
 
-        # Layout principal del panel lateral
         self.controlArea.layout().setAlignment(Qt.AlignTop)
 
         box_time = gui.widgetBox(self.controlArea, "Period of time")
@@ -139,7 +136,6 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
         gui.widgetLabel(box_time, "End Date:")
         box_time.layout().addWidget(self.timeTo)
 
-        # Caja de parámetros (una sección visual para agrupar controles)
         params_box = gui.widgetBox(self.controlArea, "Configuration Parameters")
 
         self.nMorales_spin = gui.spin(params_box, self, "nMorales", 10, 100, step=1, label="Events for b-value Morales")
@@ -176,11 +172,9 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
         params_box.layout().addWidget(self.attAdeli_bM_checkbox)
         params_box.layout().addWidget(self.attAdeli_bA_checkbox)
 
-        # Caja de botones (para separar las acciones)
         actions_box = gui.widgetBox(self.controlArea, "Actions")
         self.generatebutton = gui.button(actions_box, self, "Generate Attributes", callback=self.process)
 
-        # Espaciador para empujar botones hacia abajo
         spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.controlArea.layout().addItem(spacer)
 
@@ -265,11 +259,6 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
         self.Outputs.data_output.send(None)
 
     def configurations_table(self):
-        """
-        Genera y envía una tabla con la configuración actual del nodo.
-        Incluye parámetros como fechas, valores numéricos y el tipo de salida.
-        """
-
         selected_options = []
         if self.attYorch_bM:
             selected_options.append("attYorch/bM")
@@ -296,17 +285,13 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
             "Output Type": outputtype
         }
 
-        # Convertir el diccionario en un DataFrame con una única fila
         df = pd.DataFrame([config])
 
-        # Convertir el DataFrame a una tabla de Orange
         out_configurations = pc.table_from_frame(df)
 
-        # Enviar la tabla de configuración por la salida correspondiente
         self.Outputs.configuration_table.send(out_configurations)
 
     def process(self):
-        # Desactivar el botón y mostrar la barra de progreso
         self.generatebutton.setEnabled(False)
 
         if self.data is None:
@@ -335,14 +320,7 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
             selected_options.append("attAdeli/bA")
         self.eqpgen.outputType = ",".join(selected_options)
 
-        # Convert Orange Table to DataFrame
         df = table_to_frame(self.data)
-
-        # Verificar que las columnas necesarias existen
-        """required_columns = {"time", "latitude", "longitude", "mag"}
-        if not required_columns.issubset(df.columns):
-            self.Error.generation_error("Faltan columnas en los datos de entrada.")
-            return"""
 
         self.progressBarInit()
         self.eqpgen.progress_callback = self.progressBarSet
@@ -353,7 +331,6 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
 
         output_data = pc.table_from_frame(processed_data)
 
-        # Enviar la tabla procesada como salida
         self.Outputs.data_output.send(output_data)
 
         self.output = OutputData(

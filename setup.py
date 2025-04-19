@@ -53,7 +53,6 @@ def include_documentation():
 
     DATA_FILES.extend(doc_files)
 
-# Llamamos a la función que incluye la documentación
 include_documentation()
 
 with open(path.join(here, 'README.md'), 'r', encoding='utf-8') as f:
@@ -73,7 +72,7 @@ CLASSIFIERS = [
 
 setup(
     name="EarthquakesETL",
-    version="1.0.4",
+    version="1.0.5",
     author="Elena Carrasco Hurtado",
     author_email="ecarrascohurtado@gmail.com",
     description="EarthquakesETL add-on for Orange 3 data mining software.",

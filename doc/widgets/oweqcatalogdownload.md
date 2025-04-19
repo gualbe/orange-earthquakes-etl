@@ -47,4 +47,4 @@ Usage Tips
 - Utilize the "Generate" button to initiate data acquisition, and the "Reset" button to clear configurations and start anew.
 - When using "Chile Sismology", verify that the chosen coordinates are within the country's geographical limits.
 
-![ChileImage](../_build/htmlhelp/_static/ChileImage.jpg)
+![ChileImage.jpg](images/ChileImage.jpg)

@@ -64,6 +64,8 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         self.end_date = QDateEdit(self)
         self.start_date.setCalendarPopup(True)
         self.end_date.setCalendarPopup(True)
+        self.start_date.setDisplayFormat("dd/MM/yyyy")
+        self.end_date.setDisplayFormat("dd/MM/yyyy")
         gui.widgetLabel(box_time, "Start Date:")
         box_time.layout().addWidget(self.start_date)
         self.start_date.timeChanged.connect(self.configurations_table)

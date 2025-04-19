@@ -135,6 +135,8 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
         box_time.layout().addWidget(self.timeFrom)
         gui.widgetLabel(box_time, "End Date:")
         box_time.layout().addWidget(self.timeTo)
+        self.timeFrom.setDisplayFormat("dd/MM/yyyy")
+        self.timeTo.setDisplayFormat("dd/MM/yyyy")
 
         params_box = gui.widgetBox(self.controlArea, "Configuration Parameters")
 
@@ -241,7 +243,8 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
             # Convertir la tabla a un DataFrame de pandas
             df = table_to_frame(data)
 
-            df = pd.DataFrame(df.drop('index', axis=1))
+            if 'index' in df.columns:
+                df = pd.DataFrame(df.drop('index', axis=1))
 
             # Suponiendo que la columna con la fecha se llama "time" y contiene objetos datetime
             # Se obtienen la fecha mínima y máxima

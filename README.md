@@ -52,6 +52,8 @@ If using Anaconda Python distribution, simply run
 * fiona>=1.10.1
 * dataclasses>=0.6
 * numpy>=1.26.4
+* numba==0.58.1
+* llvmlite==0.41.1
 
 Usage
 -----

@@ -1,3 +1,4 @@
+import time
 from dataclasses import dataclass
 from typing import Any, Container, Optional
 
@@ -16,6 +17,7 @@ from Orange.widgets import gui
 from Orange.widgets.widget import Output, Msg
 from PyQt5.QtCore import QModelIndex, QSize, QDate
 from PyQt5.QtWidgets import QSpacerItem, QSizePolicy, QHeaderView, QStyle, QDateEdit
+from orangewidget.utils.widgetpreview import WidgetPreview
 
 from EarthquakesETL.eqmodel.EQPgen import EQPgen
 
@@ -140,28 +142,28 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
 
         params_box = gui.widgetBox(self.controlArea, "Configuration Parameters")
 
-        self.nMorales_spin = gui.spin(params_box, self, "nMorales", 10, 100, step=1, label="Events for b-value Morales")
+        self.nMorales_spin = gui.spin(params_box, self, "nMorales", 1, 1000, step=1, label="Events for b-value Morales")
         self.nMorales_spin.box.setToolTip("Number of events used to calculate the b-value using Morales' method.")
         params_box.layout().addWidget(self.nMorales_spin)
-        self.nAdeli_spin = gui.spin(params_box, self, "nAdeli", 1, 10, step=1, label="Events for b-value Adeli")
+        self.nAdeli_spin = gui.spin(params_box, self, "nAdeli", 1, 1000, step=1, label="Events for b-value Adeli")
         self.nAdeli_spin.box.setToolTip("Number of previous seismic events considered for the calculation of the b-value using Adeli's method.")
         params_box.layout().addWidget(self.nAdeli_spin)
-        self.referenceMagnitude_spin = gui.doubleSpin(params_box, self, "referenceMagnitude", 2.0, 5.0, step=0.1, label="Reference Magnitude")
+        self.referenceMagnitude_spin = gui.doubleSpin(params_box, self, "referenceMagnitude", 1.0, 9.0, step=0.1, label="Reference Magnitude")
         self.referenceMagnitude_spin.box.setToolTip("Reference magnitude used in the calculation of the b-value. Affects how seismic activity is quantified.")
         params_box.layout().addWidget(self.referenceMagnitude_spin)
-        self.dayspred_spin = gui.spin(params_box, self, "dayspred", 1, 30, step=1, label="Prediction Days")
+        self.dayspred_spin = gui.spin(params_box, self, "dayspred", 1, 1000, step=1, label="Prediction Days")
         self.dayspred_spin.box.setToolTip("Number of future days considered for earthquake prediction. A longer period may reduce precision.")
         params_box.layout().addWidget(self.dayspred_spin)
-        self.classFrom_spin = gui.doubleSpin(params_box, self, "classFrom", 2.0, 5.0, step=0.1, label="Classification: From")
+        self.classFrom_spin = gui.doubleSpin(params_box, self, "classFrom", 1.0, 9.0, step=0.1, label="Classification: From")
         self.classFrom_spin.box.setToolTip("Minimum earthquake magnitude considered for discrete classification.")
         params_box.layout().addWidget(self.classFrom_spin)
-        self.classTo_spin = gui.doubleSpin(params_box, self, "classTo", 2.0, 6.0, step=0.1, label="Classification: To")
+        self.classTo_spin = gui.doubleSpin(params_box, self, "classTo", 1.0, 9.0, step=0.1, label="Classification: To")
         self.classTo_spin.box.setToolTip("Maximum earthquake magnitude considered for discrete classification.")
         params_box.layout().addWidget(self.classTo_spin)
-        self.classStep_spin = gui.doubleSpin(params_box, self, "classStep", 0.05, 0.5, step=0.05, label="Classification: Step")
+        self.classStep_spin = gui.doubleSpin(params_box, self, "classStep", 0.01, 9.0, step=0.05, label="Classification: Step")
         self.classStep_spin.box.setToolTip("Step size for defining magnitude classes. Smaller values increase granularity.")
         params_box.layout().addWidget(self.classStep_spin)
-        self.chth_spin = gui.doubleSpin(params_box, self, "chth", 0.01, 1.0, step=0.01, label="Threshold for mu and c")
+        self.chth_spin = gui.doubleSpin(params_box, self, "chth", 0.01, 9.0, step=0.01, label="Threshold for mu and c")
         self.chth_spin.box.setToolTip("Characteristic threshold for mu and c attributes, affecting event clustering and variability assessment.")
         params_box.layout().addWidget(self.chth_spin)
         gui.widgetLabel(params_box, "Attribute Sets:")
@@ -345,3 +347,6 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
         self.configurations_table()
 
         self.generatebutton.setEnabled(True)
+
+if __name__ == "__main__":
+    WidgetPreview(oweqfeatureengineering).run(Orange.data.Table("../../catalogo78.tab"))

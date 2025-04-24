@@ -220,7 +220,11 @@ class oweqcatalogdeclustering(OWWidget):
         if data is not None:
             self.clear()
             self.data = data
-            self.view_input.setModel(_TableModel(data)) if data else self.view_input.setModel(None)
+            df = pc.table_to_frame(data)
+            if 'index' in df.columns:
+                df = df.drop('index', axis=1)
+            cleaned = pc.table_from_frame(df)
+            self.view_input.setModel(_TableModel(cleaned)) if data else self.view_input.setModel(None)
         else:
             self.Error.no_data()
 
@@ -298,12 +302,12 @@ class oweqcatalogdeclustering(OWWidget):
 
             potential_parents = potential_parents.copy()
             potential_parents['Tij'] = (child['time'] - potential_parents['time']).dt.total_seconds() / 3600
-            potential_parents['Tij'] *= 10 ** (-float(self.q_value) * float(self.b_value) * potential_parents['mag'])
+            potential_parents['Tij'] *= 10 ** (-float(self.q_value_edit.text()) * float(self.b_value_edit.text()) * potential_parents['mag'])
 
             potential_parents['Rij'] = np.sqrt((child['latitude'] - potential_parents['latitude']) ** 2 +
                                                (child['longitude'] - potential_parents['longitude']) ** 2)
-            potential_parents['Rij'] = (potential_parents['Rij'] ** float(self.fractal_dimension)) * 10 ** \
-                                       ((float(self.q_value) - 1) * float(self.b_value) * potential_parents['mag'])
+            potential_parents['Rij'] = (potential_parents['Rij'] ** float(self.fractal_dimension_edit.text())) * 10 ** \
+                                       ((float(self.q_value_edit.text()) - 1) * float(self.b_value_edit.text()) * potential_parents['mag'])
 
             potential_parents['Nij'] = potential_parents['Tij'] * potential_parents['Rij']
 
@@ -362,8 +366,8 @@ class oweqcatalogdeclustering(OWWidget):
 
         declust_config = {
             "time_distance_window": GardnerKnopoffWindow(),
-            "fs_time_prop": float(self.fs_time_prop),
-            "time_cutoff": float(self.time_window)
+            "fs_time_prop": float(self.fs_time_prop_edit.text()),
+            "time_cutoff": float(self.time_window_edit.text())
         }
 
         # Aplicar el algoritmo de declusterización

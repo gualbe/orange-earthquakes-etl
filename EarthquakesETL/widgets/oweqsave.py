@@ -440,15 +440,13 @@ class oweqsave(OWBaseSql, OWWidget):
                 self.btn_loginregister.setDisabled(True)
                 self.btn_savedata.setDisabled(False)
 
-        # Actualiza el combobox u otros controles según corresponda
         self.refresh_catalog_combo()
         return self.logged
 
     def get_sqlalchemy_engine(self):
-        # Se asume que los QLineEdit para host y base de datos ya están definidos en la interfaz
         host = self.servertext.text()
         database = self.databasetext.text()
-        port = 5432  # Ajusta el puerto si tienes un campo específico para ello
+        port = 5432
         username = self.usernametext.text()
         password = self.passwordtext.text()
         conn_str = f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{database}"
@@ -487,7 +485,6 @@ class oweqsave(OWBaseSql, OWWidget):
     def create_table_dataset(self, table_name):
         self.progressBarInit()
         try:
-            # Convertir la tabla Orange a un DataFrame de pandas
             df = pc.table_to_frame(self.data, include_metas=True)
         except Exception as ex:
             self.Error.connection("Error al convertir la tabla a DataFrame: " + str(ex))

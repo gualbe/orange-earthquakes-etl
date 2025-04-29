@@ -1,4 +1,3 @@
-import time
 from dataclasses import dataclass
 from typing import Any, Container, Optional
 
@@ -17,7 +16,6 @@ from Orange.widgets import gui
 from Orange.widgets.widget import Output, Msg
 from PyQt5.QtCore import QModelIndex, QSize, QDate
 from PyQt5.QtWidgets import QSpacerItem, QSizePolicy, QHeaderView, QStyle, QDateEdit
-from orangewidget.utils.widgetpreview import WidgetPreview
 
 from EarthquakesETL.eqmodel.EQPgen import EQPgen
 
@@ -53,7 +51,7 @@ class _TableModel(RichTableModel):
         row = self.mapToSourceRows(row)
         try:
             id_ = self.source.ids[row]
-        except (IndexError, AttributeError):  # pragma: no cover
+        except (IndexError, AttributeError):
             return False
         return int(id_) in self._subset
 
@@ -218,23 +216,16 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
         vheader.setMinimumSectionSize(5)
         vheader.setSectionResizeMode(QHeaderView.Fixed)
 
-        # Limit the number of rows displayed in the QTableView
-        # (workaround for QTBUG-18490 / QTBUG-28631)
         maxrows = (2 ** 31 - 1) // (vheader.defaultSectionSize() + 2)
         if rowcount > maxrows:
             sliceproxy = TableSliceProxy(
                 parent=view, rowSlice=slice(0, maxrows))
             sliceproxy.setSourceModel(datamodel)
-            # First reset the view (without this the header view retains
-            # it's state - at this point invalid/broken)
             view.setModel(None)
             view.setModel(sliceproxy)
 
         assert view.model().rowCount() <= maxrows
         assert vheader.sectionSize(0) > 1 or datamodel.rowCount() == 0
-
-    from PyQt5.QtCore import QDate
-    from Orange.data.pandas_compat import table_to_frame
 
     @Inputs.data
     def set_data(self, data=None):
@@ -242,17 +233,13 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
         self.data = data
 
         if data is not None:
-            # Convertir la tabla a un DataFrame de pandas
             df = table_to_frame(data)
 
             if 'index' in df.columns:
                 df = pd.DataFrame(df.drop('index', axis=1))
 
-            # Suponiendo que la columna con la fecha se llama "time" y contiene objetos datetime
-            # Se obtienen la fecha mínima y máxima
             min_datetime = df["time"].min()
             max_datetime = df["time"].max()
-            # Convertir a QDate (se usa el año, mes y día)
             qmin_date = QDate(min_datetime.year, min_datetime.month, min_datetime.day)
             qmax_date = QDate(max_datetime.year, max_datetime.month, max_datetime.day)
             # Configurar los QDateEdit para limitar la selección al rango de fechas del catálogo
@@ -275,7 +262,6 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
             selected_options.append("attAdeli/bA")
         outputtype = ", ".join(selected_options)
 
-        # Crear un diccionario con los parámetros
         config = {
             "Start Date": self.timeFrom.date().toString(Qt.ISODate),
             "End Date": self.timeTo.date().toString(Qt.ISODate),
@@ -332,6 +318,12 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
 
         processed_data = self.eqpgen.run(df)
 
+        numeric_cols = [c for c in processed_data.columns
+                        if c not in ('time', 'event')]
+        processed_data[numeric_cols] = processed_data[numeric_cols].astype(float)
+
+        processed_data['event'] = processed_data['event'].astype(int)
+
         self.progressBarFinished()
 
         output_data = pc.table_from_frame(processed_data)
@@ -347,6 +339,3 @@ class oweqfeatureengineering(OWWidget, ConcurrentWidgetMixin):
         self.configurations_table()
 
         self.generatebutton.setEnabled(True)
-
-if __name__ == "__main__":
-    WidgetPreview(oweqfeatureengineering).run(Orange.data.Table("../../catalogo78.tab"))

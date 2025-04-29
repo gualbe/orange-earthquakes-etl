@@ -18,7 +18,6 @@ import numpy as np
 from openquake.hmtk.seismicity.catalogue import Catalogue
 from openquake.hmtk.seismicity.declusterer.dec_gardner_knopoff import GardnerKnopoffType1
 from openquake.hmtk.seismicity.declusterer.distance_time_windows import (GardnerKnopoffWindow)
-from orangewidget.utils.widgetpreview import WidgetPreview
 
 SubsetRole = next(OrangeUserRole)
 
@@ -101,7 +100,6 @@ class oweqcatalogdeclustering(OWWidget):
         self.fractal_dimension = 1.6
         self.b_value = 1.0
 
-        # Layout principal del panel lateral
         self.controlArea.layout().setAlignment(Qt.AlignTop)
 
         box_decluster = gui.widgetBox(self.controlArea, "Declustering Settings")
@@ -117,7 +115,6 @@ class oweqcatalogdeclustering(OWWidget):
         self.decluster_combobox.currentIndexChanged.connect(self.update_method_fields)
         self.update_method_fields()
 
-        # Espaciador para empujar botones hacia abajo
         spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.controlArea.layout().addItem(spacer)
 
@@ -199,15 +196,11 @@ class oweqcatalogdeclustering(OWWidget):
         vheader.setMinimumSectionSize(5)
         vheader.setSectionResizeMode(QHeaderView.Fixed)
 
-        # Limit the number of rows displayed in the QTableView
-        # (workaround for QTBUG-18490 / QTBUG-28631)
         maxrows = (2 ** 31 - 1) // (vheader.defaultSectionSize() + 2)
         if rowcount > maxrows:
             sliceproxy = TableSliceProxy(
                 parent=view, rowSlice=slice(0, maxrows))
             sliceproxy.setSourceModel(datamodel)
-            # First reset the view (without this the header view retains
-            # it's state - at this point invalid/broken)
             view.setModel(None)
             view.setModel(sliceproxy)
 
@@ -216,7 +209,6 @@ class oweqcatalogdeclustering(OWWidget):
 
     @Inputs.data
     def set_data(self, data):
-        """Recibe la entrada de datos."""
         if data is not None:
             self.clear()
             self.data = data
@@ -370,7 +362,6 @@ class oweqcatalogdeclustering(OWWidget):
             "time_cutoff": float(self.time_window_edit.text())
         }
 
-        # Aplicar el algoritmo de declusterización
         cluster_index, cluster_flag = declust_method.decluster(catalogue, declust_config)
 
         catalogue.data["cluster_index"] = cluster_index

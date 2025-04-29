@@ -5,7 +5,7 @@ from Orange.widgets.utils.concurrent import ConcurrentWidgetMixin  # widget --> 
 import requests
 
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from math import radians, cos, sqrt
 
@@ -17,7 +17,6 @@ from PyQt5.QtWidgets import QLineEdit, QLabel, QComboBox, QDoubleSpinBox, QDateE
 
 import pandas as pd
 import geopandas as gpd
-import time
 
 from Orange.widgets.utils.widgetpreview import WidgetPreview
 
@@ -50,7 +49,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
 
         self.data = None
 
-        # Origen de datos
         box_data_source = gui.widgetBox(self.controlArea, "Data Source")
         self.data_source_combobox = QComboBox(self)
         self.data_source_combobox.addItems(["USGS", "Chile Sismology"])
@@ -58,7 +56,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         box_data_source.layout().addWidget(self.data_source_combobox)
         self.data_source_combobox.editTextChanged.connect(self.configurations_table)
 
-        # Periodo de tiempo
         box_time = gui.widgetBox(self.controlArea, "Period of time")
         self.start_date = QDateEdit(self)
         self.end_date = QDateEdit(self)
@@ -75,7 +72,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         box_time.layout().addWidget(self.end_date)
         self.end_date.timeChanged.connect(self.configurations_table)
 
-        # Magnitud
         box_magnitude = gui.widgetBox(self.controlArea, "Min Magnitude")
         self.min_magnitude = QDoubleSpinBox(self)
         self.min_magnitude.setRange(0.0, 10.0)
@@ -85,7 +81,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         box_magnitude.layout().addWidget(self.min_magnitude)
         self.min_magnitude.textChanged.connect(self.configurations_table)
 
-        # Lugar
         box_place = gui.widgetBox(self.controlArea, "Place")
         self.place_combobox = QComboBox(self)
         self.place_combobox.addItems(
@@ -94,11 +89,9 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         box_place.layout().addWidget(self.place_combobox)
         self.place_combobox.editTextChanged.connect(self.configurations_table)
 
-        # Layout para campos dependientes
         self.dynamic_layout = QVBoxLayout()
         box_place.layout().addLayout(self.dynamic_layout)
 
-        # Conectar el cambio de selección en "Lugar" para actualizar los campos dinámicamente
         self.place_combobox.currentIndexChanged.connect(self.update_place_fields)
         self.update_place_fields()
 
@@ -120,7 +113,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         button_box.layout().addWidget(self.btn_reset)
 
     def update_place_fields(self):
-        # Limpiar el layout dinámico para evitar superposición de widgets
         for i in reversed(range(self.dynamic_layout.count())):
             widget_to_remove = self.dynamic_layout.itemAt(i).widget()
             self.dynamic_layout.removeWidget(widget_to_remove)
@@ -150,7 +142,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
             self.max_longitude.textChanged.connect(self.configurations_table)
 
         else:
-            # Campos para círculo
             self.latitude = QLineEdit(self)
             self.longitude = QLineEdit(self)
             self.maxradiuskm = QLineEdit(self)
@@ -190,7 +181,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
                     return
                 self.Error.generation_error.clear()
 
-            # Error fecha
             if self.end_date.date() < self.start_date.date():
                 self.Error.generation_error("The end date must be after the start date.")
                 return
@@ -205,14 +195,12 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
                     self.btn_generate.setEnabled(False)
                     return
             else:
-                #Error radio
                 radius = float(self.maxradiuskm.text().replace(',', '.'))
                 if radius <= 0:
                     self.Error.generation_error("Radius must be a positive number.")
                     return
                 self.Error.generation_error.clear()
 
-            # Error fecha
             if self.end_date.date() < self.start_date.date():
                 self.Error.generation_error("The end date must be after the start date.")
                 return
@@ -226,7 +214,6 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
                 self.Error.generation_error("No event matching these characteristics was found.")
             else:
                 exportDf['place'] = exportDf['place'].astype('category')
-                # Ordenar fecha ascendente
                 exportDf.sort_values('time', ascending=True, inplace=True)
                 out_data = pc.table_from_frame(exportDf)
         else:
@@ -264,7 +251,7 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         url = f"https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={fecha_inicio}&endtime={fecha_fin}" \
               f"&minmagnitude={str(self.min_magnitude.text())}&latitude={str(self.latitude.text())}&longitude={str(self.longitude.text())}" \
               f"&maxradiuskm={str(self.maxradiuskm.text())}"
-
+        print(url)
         url_formato = url.replace(",", ".")
         response = requests.get(url_formato)
 
@@ -283,7 +270,10 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
             geometry = gpd.points_from_xy([coord[0]], [coord[1]])
             gdf = gpd.GeoDataFrame(data['properties'], index=[i], geometry=geometry, crs='EPSG:4326')
             gdf = gdf[['mag', 'place', 'time', 'alert', 'status', 'tsunami', 'geometry']]
-            gdf['time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(gdf['time'][i] / 1000))
+
+            gdf['time'] = datetime(1970, 1, 1) + timedelta(seconds=gdf['time'][i]/1000)
+
+            gdf['time'] = gdf['time'].dt.strftime('%Y-%m-%d %H:%M:%S')
 
             gdf['latitude'] = gdf['geometry'].apply(lambda point: point.x)
             gdf['longitude'] = gdf['geometry'].apply(lambda point: point.y)
@@ -299,14 +289,11 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
         self.progressBarFinished()
         return exportDf
 
-    # SISMOLOGÍA CHILE
-    # Función para generar URL de cada día
     def generar_url(self, fecha):
         return f"https://www.sismologia.cl/sismicidad/catalogo/{fecha.year()}/{fecha.month():02}/{fecha.year()}" \
                f"{fecha.month():02}{fecha.day():02}.html"
 
 
-    # Función para obtener datos de sismos de una fecha específica
     def obtener_datos_sismos(self, fecha):
         url = self.generar_url(fecha)
         response = requests.get(url)
@@ -329,6 +316,15 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
             latitud_longitud = columnas[2].text.strip().split(" ")
             distance_part = columnas[0].text[19:]
             time = columnas[1].text
+
+            # Latitud y longitud juntas (se salta la fila)
+            if len(latitud_longitud) == 1:
+                continue
+
+            # Latitud o longitud vacias (se salta la fila)
+            if latitud_longitud[0] == '' or latitud_longitud[1] == '':
+                continue
+
             latitud = float(latitud_longitud[0])
             longitud = float(latitud_longitud[1])
             magnitud = float(columnas[4].text.strip().split()[0])  # Obtener solo el número
@@ -430,39 +426,31 @@ class oweqcatalogdownload(OWWidget, ConcurrentWidgetMixin):
     def punto_en_circulo(self, lat_punto, lon_punto, lat_centro, lon_centro, radio):
         R = 6371.0
 
-        # Extraer texto del QLineEdit y convertir a float
-        latitud = lat_punto  # Reemplaza ',' por '.' si es necesario
+        latitud = lat_punto
         longitud = lon_punto
 
-        # Asegúrate de que self.latitude y self.longitude sean números
         lat_centro = float(lat_centro.text().replace(',', '.'))
         lon_centro = float(lon_centro.text().replace(',', '.'))
 
-        # Convertir a radianes si la función lo requiere
         lat_centro = radians(lat_centro)
         lon_centro = radians(lon_centro)
         lat_punto = radians(latitud)
         lon_punto = radians(longitud)
 
-        # Diferencias de coordenadas
         dlat = lat_punto - lat_centro
         dlon = lon_punto - lon_centro
 
-        # Fórmula del Haversine usando pow
         a = pow(math.sin(dlat / 2), 2) + cos(lat_centro) * cos(lat_punto) * pow(math.sin(dlon / 2), 2)
         c = 2 * math.atan2(sqrt(a), sqrt(1 - a))
-        distancia = R * c  # Distancia en kilómetros
+        distancia = R * c
 
-        # Verificar si la distancia está dentro del radio
         return distancia <= float(radio.text().replace(',', '.'))
 
-    # COMPROBAR CAMPOS CUADRADO
     def field_check_cuadrado(self):
         all_filled = all(
             field.text() for field in [self.min_latitude, self.min_longitude, self.max_longitude, self.max_latitude])
         self.btn_generate.setEnabled(all_filled)
 
-    # COMPROBAR CAMPOS CIRCULO
     def field_check_circulo(self):
         all_filled = all(field.text() for field in [self.latitude, self.longitude, self.maxradiuskm])
         self.btn_generate.setEnabled(all_filled)

@@ -73,3 +73,4 @@ Workflow Example
 -----
 This is an example of how you can use this add-on.
 
+![Workflow Example](https://github.com/gualbe/orange-earthquakes-etl/tree/main/doc/widgets/images/workflow_example.png?raw=true)

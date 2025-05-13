@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="" description="">
+	<nodes>
+		<node id="0" name="EQ Catalog Download" qualified_name="EarthquakesETL.widgets.oweqcatalogdownload.oweqcatalogdownload" project_name="EarthquakesETL" version="" title="EQ Catalog Download" position="(376.0, 156.0)" />
+		<node id="1" name="EQ Catalog Declustering" qualified_name="EarthquakesETL.widgets.oweqcatalogdeclustering.oweqcatalogdeclustering" project_name="EarthquakesETL" version="" title="EQ Catalog Declustering" position="(595.0, 91.0)" />
+		<node id="2" name="EQ Feature Engineering" qualified_name="EarthquakesETL.widgets.oweqfeatureengineering.oweqfeatureengineering" project_name="EarthquakesETL" version="" title="EQ Feature Engineering" position="(803.0, 91.0)" />
+		<node id="3" name="EQ Catalog Download" qualified_name="EarthquakesETL.widgets.oweqcatalogdownload.oweqcatalogdownload" project_name="EarthquakesETL" version="" title="EQ Catalog Download (1)" position="(420.0, 407.0)" />
+		<node id="4" name="EQ Catalog Declustering" qualified_name="EarthquakesETL.widgets.oweqcatalogdeclustering.oweqcatalogdeclustering" project_name="EarthquakesETL" version="" title="EQ Catalog Declustering (1)" position="(589.0, 210.0)" />
+		<node id="5" name="EQ Feature Engineering" qualified_name="EarthquakesETL.widgets.oweqfeatureengineering.oweqfeatureengineering" project_name="EarthquakesETL" version="" title="EQ Feature Engineering (1)" position="(805.0, 209.0)" />
+		<node id="6" name="EQ Catalog Download" qualified_name="EarthquakesETL.widgets.oweqcatalogdownload.oweqcatalogdownload" project_name="EarthquakesETL" version="" title="EQ Catalog Download (2)" position="(437.0, 672.0)" />
+		<node id="7" name="EQ Catalog Declustering" qualified_name="EarthquakesETL.widgets.oweqcatalogdeclustering.oweqcatalogdeclustering" project_name="EarthquakesETL" version="" title="EQ Catalog Declustering (2)" position="(612.0, 406.0)" />
+		<node id="8" name="EQ Feature Engineering" qualified_name="EarthquakesETL.widgets.oweqfeatureengineering.oweqfeatureengineering" project_name="EarthquakesETL" version="" title="EQ Feature Engineering (2)" position="(816.0, 406.0)" />
+		<node id="9" name="EQ Catalog Declustering" qualified_name="EarthquakesETL.widgets.oweqcatalogdeclustering.oweqcatalogdeclustering" project_name="EarthquakesETL" version="" title="EQ Catalog Declustering (3)" position="(634.0, 671.0)" />
+		<node id="10" name="EQ Feature Engineering" qualified_name="EarthquakesETL.widgets.oweqfeatureengineering.oweqfeatureengineering" project_name="EarthquakesETL" version="" title="EQ Feature Engineering (3)" position="(828.0, 671.0)" />
+	</nodes>
+	<links>
+		<link id="0" source_node_id="0" sink_node_id="1" source_channel="Catalog" sink_channel="Catalog" enabled="true" source_channel_id="data" sink_channel_id="data" />
+		<link id="1" source_node_id="0" sink_node_id="4" source_channel="Catalog" sink_channel="Catalog" enabled="true" source_channel_id="data" sink_channel_id="data" />
+		<link id="2" source_node_id="1" sink_node_id="2" source_channel="Cleaned Catalog" sink_channel="Catalog" enabled="true" source_channel_id="cleaned_data" sink_channel_id="data" />
+		<link id="3" source_node_id="4" sink_node_id="5" source_channel="Cleaned Catalog" sink_channel="Catalog" enabled="true" source_channel_id="cleaned_data" sink_channel_id="data" />
+		<link id="4" source_node_id="7" sink_node_id="8" source_channel="Cleaned Catalog" sink_channel="Catalog" enabled="true" source_channel_id="cleaned_data" sink_channel_id="data" />
+		<link id="5" source_node_id="9" sink_node_id="10" source_channel="Cleaned Catalog" sink_channel="Catalog" enabled="true" source_channel_id="cleaned_data" sink_channel_id="data" />
+		<link id="6" source_node_id="3" sink_node_id="7" source_channel="Catalog" sink_channel="Catalog" enabled="true" source_channel_id="data" sink_channel_id="data" />
+		<link id="7" source_node_id="6" sink_node_id="9" source_channel="Catalog" sink_channel="Catalog" enabled="true" source_channel_id="data" sink_channel_id="data" />
+	</links>
+	<annotations>
+		<text id="0" type="text/markdown" rect="(32.0, 3.0, 460.0, 141.0)" font-family="Segoe UI" font-size="16"># Taipei 70km (Taiwan)</text>
+		<text id="1" type="text/markdown" rect="(22.0, 548.0, 360.0, 98.0)" font-family="Segoe UI" font-size="16"># Hihifo 110km (Tonga)</text>
+		<text id="2" type="text/markdown" rect="(29.0, 297.0, 400.0, 98.0)" font-family="Segoe UI" font-size="16"># Antofagasta 40km (Chile)</text>
+		<text id="3" type="text/html" rect="(-11.0, 79.0, 390.0, 716.0)" font-family="Segoe UI" font-size="16">&lt;div style="text-align:center;"&gt;
+  &lt;table style="margin:0 auto; text-align:center;"&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Parameter&lt;/th&gt;
+        &lt;th&gt;Value&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Period of time&lt;/td&gt;
+        &lt;td&gt;01/01/1977 – 25/04/2025&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Min magnitude&lt;/td&gt;
+        &lt;td&gt;3&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Latitude&lt;/td&gt;
+        &lt;td&gt;23.9865&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Longitude&lt;/td&gt;
+        &lt;td&gt;121.6046&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Radius (km)&lt;/td&gt;
+        &lt;td&gt;70&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</text>
+		<text id="4" type="text/html" rect="(-19.0, 357.0, 418.0, 826.0)" font-family="Segoe UI" font-size="16">&lt;div style="text-align:center;"&gt;
+  &lt;table style="margin:0 auto; text-align:center;"&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+
+        &lt;th&gt;Parameter&lt;/th&gt;
+        &lt;th&gt;Value&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Period of time&lt;/td&gt;
+        &lt;td&gt;01/09/2011 – 27/04/2025&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Min magnitude&lt;/td&gt;
+        &lt;td&gt;3&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Latitude&lt;/td&gt;
+        &lt;td&gt;-21.4216&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Longitude&lt;/td&gt;
+        &lt;td&gt;-68.9638&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Radius (km)&lt;/td&gt;
+
+        &lt;td&gt;40&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</text>
+		<text id="5" type="text/html" rect="(-69.0, 604.0, 517.0, 782.0)" font-family="Segoe UI" font-size="16">&lt;div style="text-align:center;"&gt;
+  &lt;table style="margin:0 auto; text-align:center;"&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Parameter&lt;/th&gt;
+        &lt;th&gt;Value&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Period of time&lt;/td&gt;
+        &lt;td&gt;01/06/1984 – 25/04/2025&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Min magnitude&lt;/td&gt;
+        &lt;td&gt;3&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Latitude&lt;/td&gt;
+        &lt;td&gt;-16.4179&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Longitude&lt;/td&gt;
+        &lt;td&gt;-173.6749&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Radius (km)&lt;/td&gt;
+        &lt;td&gt;110&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;
+</text>
+	</annotations>
+	<thumbnail />
+	<node_properties>
+		<properties node_id="0" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x02J\x00\x00\x00L\x00\x00\x03\xb7\x00\x00\x03\x02\x00\x00\x02K\x00\x00\x00j\x00\x00\x03\xb6\x00\x00\x03\x01\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x02K\x00\x00\x00j\x00\x00\x03\xb6\x00\x00\x03\x01', '__version__': 3}</properties>
+		<properties node_id="1" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x01\x92\x00\x00\x00\xa4\x00\x00\x04\xb3\x00\x00\x02\xfd\x00\x00\x01\x92\x00\x00\x00\xa4\x00\x00\x04\xb3\x00\x00\x02\xfd\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x01\x92\x00\x00\x00\xa4\x00\x00\x04\xb3\x00\x00\x02\xfd', '__version__': 1}</properties>
+		<properties node_id="2" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x80\x00\x00\x000\x00\x00\x05\x82\x00\x00\x03\x1f\x00\x00\x00\x81\x00\x00\x00N\x00\x00\x05\x81\x00\x00\x03\x1e\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x00\x81\x00\x00\x00N\x00\x00\x05\x81\x00\x00\x03\x1e', '__version__': 1}</properties>
+		<properties node_id="3" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x02J\x00\x00\x00L\x00\x00\x03\xb7\x00\x00\x03\x02\x00\x00\x02K\x00\x00\x00j\x00\x00\x03\xb6\x00\x00\x03\x01\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x02K\x00\x00\x00j\x00\x00\x03\xb6\x00\x00\x03\x01', '__version__': 3}</properties>
+		<properties node_id="4" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x01\x92\x00\x00\x00\xa4\x00\x00\x04\xb3\x00\x00\x02\xfd\x00\x00\x01\x92\x00\x00\x00\xa4\x00\x00\x04\xb3\x00\x00\x02\xfd\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x01\x92\x00\x00\x00\xa4\x00\x00\x04\xb3\x00\x00\x02\xfd', '__version__': 1}</properties>
+		<properties node_id="5" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x81\x00\x00\x00N\x00\x00\x05\x81\x00\x00\x03\x1e\x00\x00\x00\x81\x00\x00\x00N\x00\x00\x05\x81\x00\x00\x03\x1e\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x00\x81\x00\x00\x00N\x00\x00\x05\x81\x00\x00\x03\x1e', '__version__': 1}</properties>
+		<properties node_id="6" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x02K\x00\x00\x00j\x00\x00\x03\xb6\x00\x00\x02\xd0\x00\x00\x02K\x00\x00\x00j\x00\x00\x03\xb6\x00\x00\x02\xd0\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x02K\x00\x00\x00j\x00\x00\x03\xb6\x00\x00\x02\xd0', '__version__': 3}</properties>
+		<properties node_id="7" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x01\x92\x00\x00\x00\xa4\x00\x00\x04\xb3\x00\x00\x02\xfd\x00\x00\x01\x92\x00\x00\x00\xa4\x00\x00\x04\xb3\x00\x00\x02\xfd\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x01\x92\x00\x00\x00\xa4\x00\x00\x04\xb3\x00\x00\x02\xfd', '__version__': 1}</properties>
+		<properties node_id="8" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x81\x00\x00\x00N\x00\x00\x05\x81\x00\x00\x03\x1e\x00\x00\x00\x81\x00\x00\x00N\x00\x00\x05\x81\x00\x00\x03\x1e\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x00\x81\x00\x00\x00N\x00\x00\x05\x81\x00\x00\x03\x1e', '__version__': 1}</properties>
+		<properties node_id="9" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x01\x92\x00\x00\x00\xa4\x00\x00\x04\xb3\x00\x00\x02\xfd\x00\x00\x01\x92\x00\x00\x00\xa4\x00\x00\x04\xb3\x00\x00\x02\xfd\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x01\x92\x00\x00\x00\xa4\x00\x00\x04\xb3\x00\x00\x02\xfd', '__version__': 1}</properties>
+		<properties node_id="10" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x81\x00\x00\x00N\x00\x00\x05\x81\x00\x00\x03\x1e\x00\x00\x00\x81\x00\x00\x00N\x00\x00\x05\x81\x00\x00\x03\x1e\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x00\x81\x00\x00\x00N\x00\x00\x05\x81\x00\x00\x03\x1e', '__version__': 1}</properties>
+	</node_properties>
+	<session_state>
+		<window_groups />
+	</session_state>
+</scheme>
